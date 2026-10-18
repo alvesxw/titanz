@@ -1,3 +1,7 @@
+-- Titanz Hub: ajustes de compilacao Luau (limite de 200 registradores locais).
+-- Funcoes de nivel superior usam declaracoes globais para reduzir registradores.
+-- AVISO: nomes globais podem conflitar com outros scripts no mesmo ambiente.
+
 
 getgenv().BRAINROT_CONFIG = {
         -- Keybinds
@@ -236,7 +240,7 @@ local tweenInfoMedium = TweenInfo.new(0.4, Enum.EasingStyle.Cubic, Enum.EasingDi
 -- SECTION 4: CORE HELPER FUNCTIONS
 -- ============================================================
 
-local function blendColor(c1, c2, alpha)
+function blendColor(c1, c2, alpha)
     return Color3.new(
         c1.R + (c2.R - c1.R) * alpha,
         c1.G + (c2.G - c1.G) * alpha,
@@ -244,7 +248,7 @@ local function blendColor(c1, c2, alpha)
     )
 end
 
-local function applyTitanzTextStyle(el)
+function applyTitanzTextStyle(el)
     if not el then return end
     if el:IsA("TextLabel") or el:IsA("TextButton") or el:IsA("TextBox") then
         el.TextStrokeColor3 = COLORS.Accent
@@ -262,7 +266,7 @@ local function applyTitanzTextStyle(el)
     end
 end
 
-local function applyTitanzButtonStyle(frame)
+function applyTitanzButtonStyle(frame)
     if not frame or not (frame:IsA("Frame") or frame:IsA("TextButton")) then return end
     
     frame.BackgroundColor3 = blendColor(COLORS.Surface, COLORS.Accent, 0.10)
@@ -287,7 +291,7 @@ local function applyTitanzButtonStyle(frame)
     end
 end
 
-local function createElement(className, properties)
+function createElement(className, properties)
     local el = Instance.new(className)
     for k, v in pairs(properties) do
         el[k] = v
@@ -296,13 +300,13 @@ local function createElement(className, properties)
     return el
 end
 
-local function tween(el, info, props)
+function tween(el, info, props)
     S.TweenService:Create(el, info, props):Play()
 end
 
 local glowingTexts = {}
 
-local function makeTextGlow(textElement, color1, color2, duration, delay)
+function makeTextGlow(textElement, color1, color2, duration, delay)
     color1 = color1 or COLORS.Purple
     color2 = color2 or Color3.fromRGB(255, 100, 255)
     duration = duration or 1.2
@@ -326,7 +330,7 @@ local function makeTextGlow(textElement, color1, color2, duration, delay)
     end)
 end
 
-local function addTextGradient(textElement, color1, color2, rotation)
+function addTextGradient(textElement, color1, color2, rotation)
     rotation = rotation or 45
     
     local gradient = Instance.new("UIGradient")
@@ -389,7 +393,7 @@ local NOTIFICATION_TYPES = {
     }
 }
 
-local function getNotificationType(color)
+function getNotificationType(color)
     if not color then return NOTIFICATION_TYPES.default end
     
     -- Match color to type
@@ -401,7 +405,7 @@ local function getNotificationType(color)
     return NOTIFICATION_TYPES.default
 end
 
-local function repositionNotifications()
+function repositionNotifications()
     local yOffset = -100  -- Start from bottom
     
     for i = #NOTIFICATION_ACTIVE, 1, -1 do  -- Reverse order
@@ -415,7 +419,7 @@ local function repositionNotifications()
     end
 end
 
-local function removeNotification(notif)
+function removeNotification(notif)
     if not notif or not notif.frame then return end
     
     -- Remove from active list
@@ -680,19 +684,19 @@ function showNotification(message, color, duration)
 end
 
 -- Shorthand functions for specific notification types
-local function notifySuccess(message, duration)
+function notifySuccess(message, duration)
     showNotification(message, COLORS.Success, duration)
 end
 
-local function notifyError(message, duration)
+function notifyError(message, duration)
     showNotification(message, COLORS.Error, duration)
 end
 
-local function notifyWarning(message, duration)
+function notifyWarning(message, duration)
     showNotification(message, COLORS.Warning, duration)
 end
 
-local function notifyInfo(message, duration)
+function notifyInfo(message, duration)
     showNotification(message, COLORS.Cyan, duration)
 end
 
@@ -707,7 +711,7 @@ getgenv().NotifyInfo = notifyInfo
 -- SECTION 5: CONFIG MANAGEMENT (REVAMPED)
 -- ============================================================
 
-local function saveConfig()
+function saveConfig()
     local serializableConfig = {}
     
     for k, v in pairs(CONFIG) do
@@ -732,7 +736,7 @@ local function saveConfig()
     end
 end
 
-local function loadConfig()
+function loadConfig()
     if not isfile(Config.CONFIG_FILE_NAME) then 
         print("[Config] No config file found, using defaults")
         return 
@@ -774,7 +778,7 @@ local function loadConfig()
 end
 
 -- Save GUI position
-local function saveGuiPosition()
+function saveGuiPosition()
     if not mainFrame then return end
     
     -- Get the actual screen position (accounting for scale)
@@ -796,7 +800,7 @@ end
 
 local miniGuiContainer = nil -- Will be set when mini GUI is created
 
-local function saveMiniGuiPosition()
+function saveMiniGuiPosition()
     if not miniGuiContainer then return end
     
     local pos = miniGuiContainer.AbsolutePosition
@@ -815,7 +819,7 @@ local function saveMiniGuiPosition()
     saveConfig()
 end
 
-local function saveFavorites()
+function saveFavorites()
     local success, jsonData = pcall(S.HttpService.JSONEncode, S.HttpService, FAVORITES)
     if success then
         writefile(Config.FAVORITES_FILE, jsonData)
@@ -824,7 +828,7 @@ local function saveFavorites()
     end
 end
 
-local function loadFavorites()
+function loadFavorites()
     if not isfile(Config.FAVORITES_FILE) then 
         print("[Favorites] No favorites file found")
         return 
@@ -852,7 +856,7 @@ local function loadFavorites()
 end
 
 -- Helper function to update config value
-local function updateConfig(key, value)
+function updateConfig(key, value)
     CONFIG[key] = value
     getgenv().BRAINROT_CONFIG[key] = value
     saveConfig()
@@ -860,12 +864,12 @@ local function updateConfig(key, value)
 end
 
 -- Helper function to get config value
-local function getConfig(key)
+function getConfig(key)
     return CONFIG[key]
 end
 
 -- Debug function to print current config
-local function debugConfig()
+function debugConfig()
     print("============ CURRENT CONFIG ============")
     for k, v in pairs(CONFIG) do
         print(string.format("%s = %s", k, tostring(v)))
@@ -882,7 +886,7 @@ getgenv().DebugBrainrotConfig = debugConfig
 -- SECTION 6: FAVORITES MANAGEMENT
 -- ============================================================
 
-local function isFavorite(animalName)
+function isFavorite(animalName)
     for _, name in ipairs(FAVORITES) do
         if name:lower() == animalName:lower() then
             return true
@@ -891,7 +895,7 @@ local function isFavorite(animalName)
     return false
 end
 
-local function addFavorite(animalName)
+function addFavorite(animalName)
     for _, name in ipairs(FAVORITES) do
         if name:lower() == animalName:lower() then
             if showNotification then
@@ -911,7 +915,7 @@ local function addFavorite(animalName)
     return true
 end
 
-local function removeFavorite(animalName)
+function removeFavorite(animalName)
     for i, name in ipairs(FAVORITES) do
         if name:lower() == animalName:lower() then
             table.remove(FAVORITES, i)
@@ -925,7 +929,7 @@ local function removeFavorite(animalName)
     return false
 end
 
-local function moveFavoriteUp(index)
+function moveFavoriteUp(index)
     if index > 1 and index <= #FAVORITES then
         FAVORITES[index], FAVORITES[index - 1] = FAVORITES[index - 1], FAVORITES[index]
         saveFavorites()
@@ -934,7 +938,7 @@ local function moveFavoriteUp(index)
     return false
 end
 
-local function moveFavoriteDown(index)
+function moveFavoriteDown(index)
     if index >= 1 and index < #FAVORITES then
         FAVORITES[index], FAVORITES[index + 1] = FAVORITES[index + 1], FAVORITES[index]
         saveFavorites()
@@ -943,7 +947,7 @@ local function moveFavoriteDown(index)
     return false
 end
 
-local function getFavoriteByPriority()
+function getFavoriteByPriority()
     for _, favName in ipairs(FAVORITES) do
         for _, animal in ipairs(allAnimalsCache) do
             if animal.name:lower() == favName:lower() then
@@ -958,7 +962,7 @@ end
 -- SECTION 7: DESYNC SYSTEM
 -- ============================================================
 
-local function runDesyncEngine()
+function runDesyncEngine()
     for key, value in pairs(DESYNC_FLAGS) do
         pcall(function()
             setfflag(tostring(key), tostring(value))
@@ -966,7 +970,7 @@ local function runDesyncEngine()
     end
 end
 
-local function createDesyncIndicator()
+function createDesyncIndicator()
     if not screenGui then return end
     
     if screenGui:FindFirstChild("DesyncIndicator") then
@@ -1102,7 +1106,7 @@ local function createDesyncIndicator()
     return indicator
 end
 
-local function enableDesync()
+function enableDesync()
     task.spawn(runDesyncEngine)
     showNotification("Desync Enabled", COLORS.Accent)
     
@@ -1114,7 +1118,7 @@ end
 -- SECTION 8: ESP SYSTEM
 -- ============================================================
 
-local function isMyBaseAnimal(animalData)
+function isMyBaseAnimal(animalData)
     if not animalData or not animalData.plot then
         return false
     end
@@ -1157,7 +1161,7 @@ local function isMyBaseAnimal(animalData)
     return false
 end
 
-local function clearESPForUID(uid)
+function clearESPForUID(uid)
     local rec = ESP_INSTANCES[uid]
     if not rec then return end
     if rec.highlight then pcall(function() rec.highlight:Destroy() end) end
@@ -1165,14 +1169,14 @@ local function clearESPForUID(uid)
     ESP_INSTANCES[uid] = nil
 end
 
-local function clearAllESP()
+function clearAllESP()
     for uid in pairs(ESP_INSTANCES) do
         clearESPForUID(uid)
     end
     ESP_BEST_UID = nil
 end
 
-local function getPodiumWorldPart(animal)
+function getPodiumWorldPart(animal)
     if not animal.plot or not animal.slot then return nil end
     
     local plot = workspace.Plots:FindFirstChild(animal.plot)
@@ -1191,7 +1195,7 @@ local function getPodiumWorldPart(animal)
     return spawn or base or podium
 end
 
-local function refreshAllESP()
+function refreshAllESP()
     if not screenGui then return end
     
     if not CONFIG.ESP_ENABLED then
@@ -1343,7 +1347,7 @@ end
 -- SECTION 9: PLAYER ESP
 -- ============================================================
 
-local function clearPlayerESP(plr)
+function clearPlayerESP(plr)
     local rec = PLAYER_ESP[plr]
     if not rec then return end
     
@@ -1354,13 +1358,13 @@ local function clearPlayerESP(plr)
     PLAYER_ESP[plr] = nil
 end
 
-local function clearAllPlayerESP()
+function clearAllPlayerESP()
     for plr in pairs(PLAYER_ESP) do
         clearPlayerESP(plr)
     end
 end
 
-local function createPlayerESP(plr)
+function createPlayerESP(plr)
     local char = plr.Character
     if not char then return end
     
@@ -1413,7 +1417,7 @@ local function createPlayerESP(plr)
     PLAYER_ESP[plr] = rec
 end
 
-local function refreshPlayerESP()
+function refreshPlayerESP()
     if not CONFIG.ESP_PLAYERS_ENABLED then
         clearAllPlayerESP()
         return
@@ -1447,7 +1451,7 @@ local function refreshPlayerESP()
     end
 end
 
-local function playerESPHeartbeat()
+function playerESPHeartbeat()
     if CONFIG.ESP_PLAYERS_ENABLED then
         refreshPlayerESP()
     end
@@ -1457,13 +1461,13 @@ end
 -- SECTION 10: FLOOR STEAL & INVISIBLE WALLS
 -- ============================================================
 
-local function getHRP()
+function getHRP()
     local c = S.LocalPlayer.Character
     if not c then return end
     return c:FindFirstChild("HumanoidRootPart") or c:FindFirstChild("UpperTorso")
 end
 
-local function startFloorSteal()
+function startFloorSteal()
     if floatPlatform then floatPlatform:Destroy() end
     
     floatPlatform = Instance.new("Part")
@@ -1484,21 +1488,21 @@ local function startFloorSteal()
     end)
 end
 
-local function stopFloorSteal()
+function stopFloorSteal()
     if floatPlatform then
         floatPlatform:Destroy()
         floatPlatform = nil
     end
 end
 
-local function isBaseWall(obj)
+function isBaseWall(obj)
     if not obj:IsA("BasePart") then return false end
     local n = obj.Name:lower()
     local parent = obj.Parent and obj.Parent.Name:lower() or ""
     return n:find("base") or parent:find("base")
 end
 
-local function tryApplyInvisibleWalls()
+function tryApplyInvisibleWalls()
     if not CONFIG.INVISIBLE_BASE_WALLS_ENABLED then return end
     
     local plots = workspace:FindFirstChild("Plots")
@@ -1523,7 +1527,7 @@ local function tryApplyInvisibleWalls()
     end)
 end
 
-local function enableInvisibleBaseWalls()
+function enableInvisibleBaseWalls()
     CONFIG.INVISIBLE_BASE_WALLS_ENABLED = true
     
     task.spawn(function()
@@ -1535,7 +1539,7 @@ local function enableInvisibleBaseWalls()
     end)
 end
 
-local function disableInvisibleBaseWalls()
+function disableInvisibleBaseWalls()
     CONFIG.INVISIBLE_BASE_WALLS_ENABLED = false
     invisibleWallsLoaded = false
     
@@ -1551,7 +1555,7 @@ end
 -- SECTION 11: AUTO-STEAL SYSTEM (WITH PREDICTION)
 -- ============================================================
 
-local function findProximityPromptForAnimal(animalData)
+function findProximityPromptForAnimal(animalData)
     if not animalData then return nil end
     
     local cachedPrompt = PromptMemoryCache[animalData.uid]
@@ -1587,7 +1591,7 @@ local function findProximityPromptForAnimal(animalData)
     return nil
 end
 
-local function getAnimalPosition(animalData)
+function getAnimalPosition(animalData)
     local plot = workspace.Plots:FindFirstChild(animalData.plot)
     if not plot then return nil end
     
@@ -1600,7 +1604,7 @@ local function getAnimalPosition(animalData)
     return podium:GetPivot().Position
 end
 
-local function getNearestAnimal()
+function getNearestAnimal()
     local hrp = getHRP()
     if not hrp then return nil end
     
@@ -1628,7 +1632,7 @@ local function getNearestAnimal()
 end
 
 -- Calculate player velocity for prediction
-local function updatePlayerVelocity()
+function updatePlayerVelocity()
     local hrp = getHRP()
     if not hrp then return end
     
@@ -1642,7 +1646,7 @@ local function updatePlayerVelocity()
 end
 
 -- Predict time until player reaches target
-local function getTimeToReach(targetPos)
+function getTimeToReach(targetPos)
     local hrp = getHRP()
     if not hrp then return math.huge end
     
@@ -1670,7 +1674,7 @@ local function getTimeToReach(targetPos)
 end
 
 -- Check if we should pre-fire based on prediction
-local function shouldPreFire(animalData)
+function shouldPreFire(animalData)
     local animalPos = getAnimalPosition(animalData)
     if not animalPos then return false end
     
@@ -1698,7 +1702,7 @@ local function shouldPreFire(animalData)
     return false
 end
 
-local function buildStealCallbacks(prompt)
+function buildStealCallbacks(prompt)
     if InternalStealCache[prompt] then return end
     
     local data = {
@@ -1730,14 +1734,14 @@ local function buildStealCallbacks(prompt)
     end
 end
 
-local function runCallbackList(list)
+function runCallbackList(list)
     for _, fn in ipairs(list) do
         task.spawn(fn)
     end
 end
 
 -- OPTIMIZED: Non-blocking async execution
-local function executeInternalStealAsync(prompt)
+function executeInternalStealAsync(prompt)
     local data = InternalStealCache[prompt]
     if not data or not data.ready then return false end
     
@@ -1761,7 +1765,7 @@ local function executeInternalStealAsync(prompt)
     return true
 end
 
-local function attemptSteal(prompt)
+function attemptSteal(prompt)
     if not prompt or not prompt.Parent then
         return false
     end
@@ -1775,7 +1779,7 @@ local function attemptSteal(prompt)
 end
 
 -- Pre-build callbacks in background
-local function prebuildStealCallbacks()
+function prebuildStealCallbacks()
     for uid, prompt in pairs(PromptMemoryCache) do
         if prompt and prompt.Parent then
             buildStealCallbacks(prompt)
@@ -1791,7 +1795,7 @@ task.spawn(function()
     end
 end)
 
-local function getPriorityAnimal()
+function getPriorityAnimal()
     for _, priorityName in ipairs(PRIORITY_ANIMALS) do
         for _, animalData in ipairs(allAnimalsCache) do
             -- CRITICAL: Skip your own base animals
@@ -1806,7 +1810,7 @@ end
 local stealConnection = nil
 local velocityConnection = nil
 
-local function autoStealLoop()
+function autoStealLoop()
     if stealConnection then
         stealConnection:Disconnect()
     end
@@ -1877,7 +1881,7 @@ local function autoStealLoop()
     end)
 end
 
-local function setupPromptCacheCleanup()
+function setupPromptCacheCleanup()
     local plots = workspace:WaitForChild("Plots", 8)
     if not plots then return end
     
@@ -1894,7 +1898,7 @@ end
 -- SECTION 11.5: SPEED BOOST SYSTEM
 -- ============================================================
 
-local function startStealSpeed()
+function startStealSpeed()
     if stealSpeedConn then return end
 
     stealSpeedConn = S.RunService.Heartbeat:Connect(function()
@@ -1919,7 +1923,7 @@ local function startStealSpeed()
     end)
 end
 
-local function stopStealSpeed()
+function stopStealSpeed()
     if stealSpeedConn then
         stealSpeedConn:Disconnect()
         stealSpeedConn = nil
@@ -1946,7 +1950,7 @@ local ANIM_TYPES = {
     "walk", "run", "jump", "fall"
 }
 
-local function cacheOriginalAnimations()
+function cacheOriginalAnimations()
     local char = S.LocalPlayer.Character
     if not char then return false end
     
@@ -1970,7 +1974,7 @@ local function cacheOriginalAnimations()
     return true
 end
 
-local function disableAnimations()
+function disableAnimations()
     if not animateScript then return end
     
     for _, animType in ipairs(ANIM_TYPES) do
@@ -1995,7 +1999,7 @@ local function disableAnimations()
     end
 end
 
-local function restoreAnimations()
+function restoreAnimations()
     if not animateScript or not originalAnimIds then return end
     
     for animType, anims in pairs(originalAnimIds) do
@@ -2011,7 +2015,7 @@ local function restoreAnimations()
     end
 end
 
-local function startAnimDisable()
+function startAnimDisable()
     if animDisableConn then return end
     
     -- Cache animations on first run
@@ -2030,7 +2034,7 @@ local function startAnimDisable()
     end)
 end
 
-local function stopAnimDisable()
+function stopAnimDisable()
     if animDisableConn then
         animDisableConn:Disconnect()
         animDisableConn = nil
@@ -2066,19 +2070,19 @@ local optimizerThreads = {}
 local optimizerConnections = {}
 local originalSettings = {}
 
-local function addThread(func)
+function addThread(func)
     local t = task.spawn(func)
     table.insert(optimizerThreads, t)
     return t
 end
 
-local function addConnection(conn)
+function addConnection(conn)
     table.insert(optimizerConnections, conn)
     return conn
 end
 
 -- Store original settings for restoration
-local function storeOriginalSettings()
+function storeOriginalSettings()
     pcall(function()
         originalSettings = {
             -- Workspace
@@ -2166,7 +2170,7 @@ local PERFORMANCE_FFLAGS = {
     ["DFIntWaterReflectionQuality"] = 0,
 }
 
-local function applyFFlags()
+function applyFFlags()
     local success = 0
     local failed = 0
     
@@ -2186,7 +2190,7 @@ local function applyFFlags()
 end
 
 -- ULTRA POTATO: Destroy all visual effects in workspace
-local function nukeVisualEffects()
+function nukeVisualEffects()
     pcall(function()
         for _, obj in ipairs(workspace:GetDescendants()) do
             pcall(function()
@@ -2488,7 +2492,7 @@ local antiLagConnections = {}
 local cleanedCharacters = {} -- Track already cleaned characters
 
 -- Comprehensive cleanup function for characters
-local function destroyAllEquippableItems(character)
+function destroyAllEquippableItems(character)
     if not character then return end
     if not CONFIG.ANTI_LAG_ENABLED then return end
     
@@ -2578,7 +2582,7 @@ local function destroyAllEquippableItems(character)
 end
 
 -- Clean backpack tools
-local function destroyBackpackTools(player)
+function destroyBackpackTools(player)
     if not CONFIG.ANTI_LAG_ENABLED then return end
     
     pcall(function()
@@ -2600,7 +2604,7 @@ local function destroyBackpackTools(player)
 end
 
 -- Clean equipped tools
-local function destroyEquippedTools(character)
+function destroyEquippedTools(character)
     if not character then return end
     if not CONFIG.ANTI_LAG_ENABLED then return end
     
@@ -2620,7 +2624,7 @@ local function destroyEquippedTools(character)
 end
 
 -- Comprehensive character cleanup
-local function antiLagCleanCharacter(char)
+function antiLagCleanCharacter(char)
     if not char then return end
     
     destroyAllEquippableItems(char)
@@ -2629,7 +2633,7 @@ local function antiLagCleanCharacter(char)
 end
 
 -- Disconnect all connections
-local function antiLagDisconnectAll()
+function antiLagDisconnectAll()
     for _, conn in ipairs(antiLagConnections) do
         if typeof(conn) == "RBXScriptConnection" then
             conn:Disconnect()
@@ -2802,7 +2806,7 @@ local BAD_LIGHTING_NAMES = {
     ColorCorrection = true,
 }
 
-local function antiBeeDiscoNuke(obj)
+function antiBeeDiscoNuke(obj)
     if not obj or not obj.Parent then return end
     if BAD_LIGHTING_NAMES[obj.Name] then
         pcall(function()
@@ -2811,7 +2815,7 @@ local function antiBeeDiscoNuke(obj)
     end
 end
 
-local function antiBeeDiscoDisconnectAll()
+function antiBeeDiscoDisconnectAll()
     for _, conn in ipairs(antiBeeDiscoConnections) do
         if typeof(conn) == "RBXScriptConnection" then
             conn:Disconnect()
@@ -2821,7 +2825,7 @@ local function antiBeeDiscoDisconnectAll()
 end
 
 -- Protect player controls from inversion
-local function protectControls()
+function protectControls()
     if controlsProtected then return end
     
     pcall(function()
@@ -2864,7 +2868,7 @@ local function protectControls()
 end
 
 -- Restore original controls
-local function restoreControls()
+function restoreControls()
     if not controlsProtected then return end
     
     pcall(function()
@@ -2881,7 +2885,7 @@ local function restoreControls()
 end
 
 -- Block buzzing sound
-local function blockBuzzingSound()
+function blockBuzzingSound()
     pcall(function()
         local PlayerScripts = S.LocalPlayer.PlayerScripts
         local beeScript = PlayerScripts:FindFirstChild("Bee", true)
@@ -2948,7 +2952,7 @@ local ragdollConnections = {}
 local cachedCharData = {}
 
 -- Cache character data for performance
-local function cacheCharacterData()
+function cacheCharacterData()
     local char = S.LocalPlayer.Character
     if not char then return false end
     
@@ -2970,7 +2974,7 @@ local function cacheCharacterData()
 end
 
 -- Clean disconnect helper
-local function disconnectAll()
+function disconnectAll()
     for _, conn in ipairs(ragdollConnections) do
         if typeof(conn) == "RBXScriptConnection" then
             pcall(function() conn:Disconnect() end)
@@ -2980,7 +2984,7 @@ local function disconnectAll()
 end
 
 -- Check if currently ragdolled (using multiple detection methods)
-local function isRagdolled()
+function isRagdolled()
     if not cachedCharData.humanoid then return false end
     
     local hum = cachedCharData.humanoid
@@ -3010,7 +3014,7 @@ local function isRagdolled()
 end
 
 -- Remove all ragdoll constraints (v1 method)
-local function removeRagdollConstraints()
+function removeRagdollConstraints()
     if not cachedCharData.character then return end
     
     local removed = false
@@ -3029,7 +3033,7 @@ local function removeRagdollConstraints()
 end
 
 -- Force exit ragdoll state
-local function forceExitRagdoll()
+function forceExitRagdoll()
     if not cachedCharData.humanoid or not cachedCharData.root then return end
     
     local hum = cachedCharData.humanoid
@@ -3053,7 +3057,7 @@ local function forceExitRagdoll()
 end
 
 -- Freeze player in place (v2 method)
-local function freezePlayer()
+function freezePlayer()
     if not cachedCharData.humanoid or not cachedCharData.root then return end
     if cachedCharData.isFrozen then return end
     
@@ -3075,7 +3079,7 @@ local function freezePlayer()
 end
 
 -- Unfreeze player (v2 method)
-local function unfreezePlayer()
+function unfreezePlayer()
     if not cachedCharData.humanoid or not cachedCharData.root then return end
     if not cachedCharData.isFrozen then return end
     
@@ -3095,7 +3099,7 @@ local function unfreezePlayer()
 end
 
 -- Main heartbeat loop for v1 (Moveable)
-local function v1HeartbeatLoop()
+function v1HeartbeatLoop()
     while antiRagdollMode == "v1" and cachedCharData.humanoid do
         task.wait()
         
@@ -3108,7 +3112,7 @@ local function v1HeartbeatLoop()
 end
 
 -- Main heartbeat loop for v2 (Freeze)
-local function v2HeartbeatLoop()
+function v2HeartbeatLoop()
     while antiRagdollMode == "v2" and cachedCharData.humanoid do
         task.wait()
         
@@ -3121,7 +3125,7 @@ local function v2HeartbeatLoop()
 end
 
 -- Setup camera binding for v1
-local function setupCameraBinding()
+function setupCameraBinding()
     if not cachedCharData.humanoid then return end
     
     local conn = S.RunService.RenderStepped:Connect(function()
@@ -3137,7 +3141,7 @@ local function setupCameraBinding()
 end
 
 -- Handle character respawn
-local function onCharacterAdded(char)
+function onCharacterAdded(char)
     task.wait(0.5) -- Wait for character to load
     
     if not antiRagdollMode then return end
@@ -3210,7 +3214,7 @@ end
 -- SECTION 16: HELPERS
 -- ============================================================
 
-local function getSideBounds(sideFolder)
+function getSideBounds(sideFolder)
     if not sideFolder then return nil end
     
     local minX, minY, minZ = math.huge, math.huge, math.huge
@@ -3250,7 +3254,7 @@ local function getSideBounds(sideFolder)
     }
 end
 
-local function getSafeOutsideDecorPos(plot, targetPos, fromPos)
+function getSafeOutsideDecorPos(plot, targetPos, fromPos)
     local decorations = plot:FindFirstChild("Decorations")
     if not decorations then return targetPos end
     
@@ -3309,7 +3313,7 @@ local function getSafeOutsideDecorPos(plot, targetPos, fromPos)
     return Vector3.new(worldPos.X, targetPos.Y, worldPos.Z)
 end
 
-local function getSmartCarpetPosition(carpetPart, fromPos)
+function getSmartCarpetPosition(carpetPart, fromPos)
     if not carpetPart or not fromPos then return nil end
     
     local cf = carpetPart.CFrame
@@ -3369,7 +3373,7 @@ local function getSmartCarpetPosition(carpetPart, fromPos)
     return Vector3.new(nearestPoint.X, finalY, nearestPoint.Z)
 end
 
-local function tpNearPlotIfFar(animalData)
+function tpNearPlotIfFar(animalData)
     local hrp = getHRP()
     if not hrp or not animalData or not animalData.plot then return end
 
@@ -3410,7 +3414,7 @@ local function tpNearPlotIfFar(animalData)
     hrp.CFrame = CFrame.new(finalPos, center)
 end
 
-local function teleportToAnimal(animalData)
+function teleportToAnimal(animalData)
     local character = S.LocalPlayer.Character
     if not character or not character:FindFirstChild("HumanoidRootPart") then
         showNotification("⚠️ Character not found!", COLORS.Warning)
@@ -3547,7 +3551,7 @@ local function teleportToAnimal(animalData)
     return true
 end
 
-local function teleportToHighest()
+function teleportToHighest()
     if #allAnimalsCache == 0 then
         showNotification("No brainrots found yet!", COLORS.Yellow)
         return
@@ -3567,7 +3571,7 @@ local function teleportToHighest()
     teleportToAnimal(allAnimalsCache[1])
 end
 
-local function autoTeleportOnStart()
+function autoTeleportOnStart()
     task.wait(0.5)
     if #allAnimalsCache > 0 then
         teleportToHighest()
@@ -3578,7 +3582,7 @@ end
 -- SECTION 17: UTILITY ACTIONS
 -- ============================================================
 
-local function instantCloner()
+function instantCloner()
     if isCloning then
         showNotification("Cloner already in progress!", COLORS.Yellow)
         return
@@ -3626,13 +3630,13 @@ local function instantCloner()
     isCloning = false
 end
 
-local function kickSelf()
+function kickSelf()
     showNotification("Kicking...", COLORS.Red)
     task.wait()
     S.LocalPlayer:Kick("Kicked the boii :E")
 end
 
-local function rejoinServer()
+function rejoinServer()
     local placeId = game.PlaceId
     local jobId = game.JobId
     
@@ -3653,7 +3657,7 @@ local function rejoinServer()
     end)
 end
 
-local function matchesFilters(animalData)
+function matchesFilters(animalData)
     -- Always ignore your own base animals
     if isMyBaseAnimal(animalData) then
         return false
@@ -3683,7 +3687,7 @@ local UNLOCK_BASE = {}
 local unlockBaseGui = nil
 local unlockBaseButtons = {}
 
-local function getClosestPlot()
+function getClosestPlot()
     local character = S.LocalPlayer.Character
     if not character or not character:FindFirstChild("HumanoidRootPart") then return nil end
     local rootPart = character.HumanoidRootPart
@@ -3718,7 +3722,7 @@ local function getClosestPlot()
     return closestPlot
 end
 
-local function findPrompts(instance, found)
+function findPrompts(instance, found)
     for _, child in pairs(instance:GetChildren()) do
         if child:IsA("ProximityPrompt") then
             table.insert(found, child)
@@ -3727,7 +3731,7 @@ local function findPrompts(instance, found)
     end
 end
 
-local function smartInteract(number)
+function smartInteract(number)
     local targetPlot = getClosestPlot()
     
     if not targetPlot then
@@ -3874,7 +3878,7 @@ end
 -- SECTION 18: SCANNER SYSTEM
 -- ============================================================
 
-local function updateStats(statLabels)
+function updateStats(statLabels)
     if not statLabels then return end
     statLabels.total.Text = tostring(stats.totalAnimals)
     statLabels.value.Text = "$" .. S.NumberUtils:ToString(stats.totalValue) .. "/s"
@@ -3883,7 +3887,7 @@ local function updateStats(statLabels)
     statLabels.traits.Text = tostring(stats.traitCount)
 end
 
-local function getAnimalHash(animalList)
+function getAnimalHash(animalList)
     if not animalList then return "" end
     local hash = ""
     for slot, data in pairs(animalList) do
@@ -3894,7 +3898,7 @@ local function getAnimalHash(animalList)
     return hash
 end
 
-local function scanSinglePlot(plot, statLabels)
+function scanSinglePlot(plot, statLabels)
     pcall(function()        
         local plotUID = plot.Name
         local channel = S.Synchronizer:Get(plotUID)
@@ -3991,7 +3995,7 @@ local function scanSinglePlot(plot, statLabels)
     end)
 end
 
-local function setupPlotListener(plot, statLabels)
+function setupPlotListener(plot, statLabels)
     if plotChannels[plot.Name] then return end
     
     local channel
@@ -4039,7 +4043,7 @@ local function setupPlotListener(plot, statLabels)
     table.insert(scannerConnections, c3)
 end
 
-local function initializePlotScanner(statLabels)
+function initializePlotScanner(statLabels)
     local plots = workspace:WaitForChild("Plots", 8)
     if not plots then
         warn("⚠️ Plots folder not found!")
@@ -4073,7 +4077,7 @@ local function initializePlotScanner(statLabels)
     table.insert(scannerConnections, removedPlotConnection)
 end
 
-local function cleanupScanner()
+function cleanupScanner()
     for _, connection in ipairs(scannerConnections) do
         if typeof(connection) == "RBXScriptConnection" then
             connection:Disconnect()
@@ -4086,7 +4090,7 @@ local function cleanupScanner()
     lastAnimalData = {}
 end
 
-local function rescanAllPlots()
+function rescanAllPlots()
     local plots = workspace:FindFirstChild("Plots")
     if not plots then return end
     
@@ -4110,7 +4114,7 @@ end)
 -- SECTION 19: GUI COMPONENT BUILDERS
 -- ============================================================
 
-local function createStatCard(parent, label, value, yPos, valueColor)
+function createStatCard(parent, label, value, yPos, valueColor)
     valueColor = valueColor or COLORS.Cyan
     
     local card = createElement("Frame", {
@@ -4156,7 +4160,7 @@ local function createStatCard(parent, label, value, yPos, valueColor)
     return valueLabel
 end
 
-local function createToggleButton(parent, text, isEnabled, yPos, callback)
+function createToggleButton(parent, text, isEnabled, yPos, callback)
     local container = createElement("Frame", {
         Size = UDim2.new(1, -20, 0, 50),
         Position = UDim2.new(0, 10, 0, yPos),
@@ -4241,7 +4245,7 @@ local function createToggleButton(parent, text, isEnabled, yPos, callback)
     return container
 end
 
-local function createKeybindButton(parent, text, currentKey, yPos, callback)
+function createKeybindButton(parent, text, currentKey, yPos, callback)
     local container = createElement("Frame", {
         Size = UDim2.new(1, -20, 0, 55),
         Position = UDim2.new(0, 10, 0, yPos),
@@ -4318,7 +4322,7 @@ local function createKeybindButton(parent, text, currentKey, yPos, callback)
     return container
 end
 
-local function createActionButton(parent, text, buttonText, buttonColor, yPos, callback)
+function createActionButton(parent, text, buttonText, buttonColor, yPos, callback)
     buttonColor = buttonColor or COLORS.Purple
     
     local container = createElement("Frame", {
@@ -4377,7 +4381,7 @@ local function createActionButton(parent, text, buttonText, buttonColor, yPos, c
     return container
 end
 
-local function createAnimalEntry(animalData, parent)
+function createAnimalEntry(animalData, parent)
     local rarityColor = animalData.rarityColor or COLORS.Purple
     local mixedNameColor = blendColor(rarityColor, COLORS.Purple, 0.35)
     
@@ -4582,7 +4586,7 @@ end
 -- SECTION 20: GUI TAB CREATION
 -- ============================================================
 
-local function createAnimalsTab(parent)
+function createAnimalsTab(parent)
     local container = createElement("Frame", {
         Name = "AnimalsTab",
         Size = UDim2.new(1, 0, 1, 0),
@@ -4654,7 +4658,7 @@ local function createAnimalsTab(parent)
     return container
 end
 
-local function createStatsTab(parent)
+function createStatsTab(parent)
     local container = createElement("Frame", {
         Name = "StatsTab",
         Size = UDim2.new(1, 0, 1, 0),
@@ -4673,7 +4677,7 @@ local function createStatsTab(parent)
     return container, labels
 end
 
-local function createFavoritesTab(parent)
+function createFavoritesTab(parent)
     local container = createElement("Frame", {
         Name = "FavoritesTab",
         Size = UDim2.new(1, 0, 1, 0),
@@ -5069,7 +5073,7 @@ end
 -- SECTION 21: ACTIONS TAB CREATION
 -- ============================================================
 
-local function createActionsTab(parent)
+function createActionsTab(parent)
     local container = createElement("Frame", {
         Name = "ActionsTab",
         Size = UDim2.new(1, 0, 1, 0),
@@ -5373,14 +5377,14 @@ end
 -- SECTION 22: MAIN GUI CREATION (WITH MOBILE SUPPORT)
 -- ============================================================
 
-local function toggleGui()
+function toggleGui()
     guiVisible = not guiVisible
     if mainFrame then
         mainFrame.Visible = guiVisible
     end
 end
 
-local function createGui()
+function createGui()
     screenGui = createElement("ScreenGui", {
         Name = "BrainrotFinder",
         ResetOnSpawn = false,
@@ -5802,7 +5806,7 @@ local function createGui()
     return statLabels
 end
 
-local function createMiniGui()
+function createMiniGui()
     if screenGui:FindFirstChild("MiniGuiContainer") then
         screenGui.MiniGuiContainer:Destroy()
     end
